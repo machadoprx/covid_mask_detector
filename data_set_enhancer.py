@@ -3,25 +3,11 @@ import sys
 import filters
 import cv2
 import os
-from face_detect import face_detect_viola_jones
+import face_recognition
+from mtcnn.mtcnn import MTCNN
 from os import listdir, getcwd
 from os.path import isfile, isdir, join
 from parse import img_data_to_csv
-
-def write_on_img(im, text):
-    # font
-    font = cv2.FONT_HERSHEY_SIMPLEX 
-    # org 
-    org = (50, 50) 
-    # fontScale 
-    fontScale = 1
-    # Blue color in BGR 
-    color = (255, 0, 0) 
-    # Line thickness of 2 px 
-    thickness = 2
-    # Using cv2.putText() method 
-    im = cv2.putText(im, text, org, font, fontScale, color, thickness, cv2.LINE_AA)
-    return im
 
 C = 0.3
 ''' Get faces from public area and crop to folder'''
@@ -29,9 +15,12 @@ if sys.argv[1] == "get_faces":
     filter_name = sys.argv[2]
     im = cv2.imread(sys.argv[3], 0)
     out_path = sys.argv[4]
-    faces_loc = face_detect_viola_jones(im, 1.1, (5, 5), 1)
+    detector = MTCNN()
+    faces_loc = detector.detect_faces(im)
+    #faces_loc = face_detect_viola_jones(im, 1.1, (5, 5), 1)
     k = 0
-    for (x, y, w, h) in faces_loc:
+    for face in faces_loc:
+        x, y, w, h = face['box']
         crop_im = im[y:y+h, x:x+w]
         resized_im = cv2.resize(crop_im, (64, 64), interpolation=cv2.INTER_AREA)
         if filter_name == "laplace":
@@ -51,10 +40,16 @@ elif sys.argv[1] == "test_image":
     filter_name = sys.argv[2]
     im = cv2.imread(sys.argv[3])
     im_gray_scale = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    faces_loc = face_detect_viola_jones(im_gray_scale, 1.1, (5, 5), 1)
+    detector = MTCNN()
+    face_locations = detector.detect_faces(im)
     k = 1
-    print(str(len(faces_loc)) + " faces found")
-    for (x, y, w, h) in faces_loc:
+    print(str(len(face_locations)) + " faces found")
+    unmasked = 0
+    masked = 0
+    if len(face_locations) == 0:
+        quit()
+    for face in face_locations:
+        x, y, w, h = face['box']
         crop_im = im_gray_scale[y:y+h, x:x+w]
         resized_im = cv2.resize(crop_im, (64, 64), interpolation=cv2.INTER_AREA)
         if filter_name == "laplace":
@@ -75,14 +70,16 @@ elif sys.argv[1] == "test_image":
         with open("results.txt", "r") as f:
             masked_prob = float(f.readline().split(' ')[2])
             unmasked_prob = float(f.readline().split(' ')[2])
-        if masked_prob > 0.5:
+        if masked_prob > 80:
             cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        else:
+            masked += 1
+        elif unmasked_prob > 80:
             cv2.rectangle(im, (x, y), (x+w, y+h), (0, 0, 255), 2)
-        #print("masked prob: " + str(masked_prob) + " unmasked prob: " + str(unmasked_prob))
+            unmasked += 1
         os.system("rm face.png")
         os.system("rm results.txt")
         k += 1
+    print("unmasked people : " + str(100 * unmasked / (unmasked + masked))[:5] + "%")
     cv2.imwrite('out.png', im)
 
 elif sys.argv[1] == "make_data_set":
