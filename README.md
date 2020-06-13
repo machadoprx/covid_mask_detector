@@ -13,3 +13,14 @@ The face detection can also be performed by the Viola Jones algorithm instead, b
 <p align="center">
 	<img src="nn.png" width="100%" heigth="100%" alt="cnnarc"></img>
 </p>
+
+# Input and output example:
+
+<div class="row" align="center">
+  <div class="column" align="center">
+    <img src="das.jpg" alt="in" width="40%" heigth="40%">
+  </div>
+  <div class="column"align="center">
+    <img src="out.png" alt="out" width="40%" heigth="40%">
+  </div>
+</div>
