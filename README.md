@@ -6,7 +6,7 @@ The assets used in this code includes 2 CNNs, one for mask detection coded and t
 One for face detection:
 https://github.com/ipazc/mtcnn
 
-
+The face detection can also be performed by the Viola Jones algorithm instead, besides its lower accuracy the VJ is faster.
 
 # CNN Architecture for mask detection
 
