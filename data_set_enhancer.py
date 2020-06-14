@@ -3,8 +3,7 @@ import sys
 import filters
 import cv2
 import os
-import face_recognition
-from mtcnn.mtcnn import MTCNN
+from face_detect import face_detect_viola_jones
 from os import listdir, getcwd
 from os.path import isfile, isdir, join
 from parse import img_data_to_csv
@@ -25,7 +24,7 @@ if sys.argv[1] == "get_faces":
         resized_im = cv2.resize(crop_im, (64, 64), interpolation=cv2.INTER_AREA)
         if filter_name == "laplace":
             resized_im = filters.laplace_sharp(resized_im, C)
-        elif filter_name == "clhae":
+        elif filter_name == "clahe":
             resized_im = filters.apply_clahe(resized_im)
         elif filter_name == "none":
             pass
@@ -38,23 +37,31 @@ if sys.argv[1] == "get_faces":
 
 elif sys.argv[1] == "test_image":
     filter_name = sys.argv[2]
-    im = cv2.imread(sys.argv[3])
+    loc = sys.argv[3]
+    im = cv2.imread(sys.argv[4])
     im_gray_scale = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    detector = MTCNN()
-    face_locations = detector.detect_faces(im)
+    face_locations = 0
+    if loc == "vj":
+        face_locations = face_detect_viola_jones(im_gray_scale, 1.1, (5, 5), 2)
+    elif loc == "dnn":
+        from mtcnn.mtcnn import MTCNN
+        detector = MTCNN()
+        face_locations = detector.detect_faces(im)
+        face_locations = [face['box'] for face in face_locations]
+    else: quit()
     k = 1
     print(str(len(face_locations)) + " faces found")
     unmasked = 0
     masked = 0
     if len(face_locations) == 0:
         quit()
-    for face in face_locations:
-        x, y, w, h = face['box']
+    for x, y, w, h in face_locations:
+        #x, y, w, h = face['box']
         crop_im = im_gray_scale[y:y+h, x:x+w]
         resized_im = cv2.resize(crop_im, (64, 64), interpolation=cv2.INTER_AREA)
         if filter_name == "laplace":
             resized_im = filters.laplace_sharp(resized_im, C)
-        elif filter_name == "clhae":
+        elif filter_name == "clahe":
             resized_im = filters.apply_clahe(resized_im)
         elif filter_name == "none":
             pass
@@ -101,7 +108,7 @@ elif sys.argv[1] == "make_data_set":
             
             if filter_name == "laplace":
                 im = filters.laplace_sharp(im, C)
-            elif filter_name == "clhae":
+            elif filter_name == "clahe":
                 im = filters.apply_clahe(im)
             elif filter_name == "none":
                 pass
