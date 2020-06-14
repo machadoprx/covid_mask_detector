@@ -18,6 +18,9 @@ The face detection can also be performed by the Viola Jones algorithm instead, b
 
 Detected faces will be evaluated , the boxes are green for people with masks and red for unmasked
 
+```
+$ python3 data_set_enhancer.py test_image clahe vj das.jpg
+```
 <div class="row" align="center">
   <div class="column" align="center">
     <img src="das.jpg" alt="in" width="40%" heigth="40%">
