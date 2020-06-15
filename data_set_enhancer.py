@@ -9,54 +9,30 @@ from os.path import isfile, isdir, join
 from parse import img_data_to_csv
 
 C = 0.3
-''' Get faces from public area and crop to folder'''
-if sys.argv[1] == "get_faces":
-    filter_name = sys.argv[2]
-    im = cv2.imread(sys.argv[3], 0)
-    out_path = sys.argv[4]
-    detector = MTCNN()
-    faces_loc = detector.detect_faces(im)
-    #faces_loc = face_detect_viola_jones(im, 1.1, (5, 5), 1)
-    k = 0
-    for face in faces_loc:
-        x, y, w, h = face['box']
-        crop_im = im[y:y+h, x:x+w]
-        resized_im = cv2.resize(crop_im, (64, 64), interpolation=cv2.INTER_AREA)
-        if filter_name == "laplace":
-            resized_im = filters.laplace_sharp(resized_im, C)
-        elif filter_name == "clahe":
-            resized_im = filters.apply_clahe(resized_im)
-        elif filter_name == "none":
-            pass
-        else:
-            print("filter not found")
-            quit()
-         
-        cv2.imwrite(out_path + '/' + str(k) + '.png', resized_im)
-        k += 1
+if sys.argv[1] == "test_image":
 
-elif sys.argv[1] == "test_image":
     filter_name = sys.argv[2]
     loc = sys.argv[3]
     im = cv2.imread(sys.argv[4])
     im_gray_scale = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    face_locations = 0
+    face_locations = None
+    
     if loc == "vj":
         face_locations = face_detect_viola_jones(im_gray_scale, 1.1, (5, 5), 2)
     elif loc == "dnn":
         from mtcnn.mtcnn import MTCNN
         detector = MTCNN()
-        face_locations = detector.detect_faces(im)
-        face_locations = [face['box'] for face in face_locations]
-    else: quit()
-    k = 1
-    print(str(len(face_locations)) + " faces found")
-    unmasked = 0
-    masked = 0
+        face_locations = [face['box'] for face in detector.detect_faces(im)]
+    else: print("Face detection method not defined: vj for Viola Jones, dnn for Deep learning approach"); quit()
+
+    print("Probably " + str(len(face_locations)) + " faces found")
     if len(face_locations) == 0:
         quit()
+
+    unmasked = 0
+    masked = 0
+
     for x, y, w, h in face_locations:
-        #x, y, w, h = face['box']
         crop_im = im_gray_scale[y:y+h, x:x+w]
         resized_im = cv2.resize(crop_im, (64, 64), interpolation=cv2.INTER_AREA)
         if filter_name == "laplace":
@@ -66,9 +42,9 @@ elif sys.argv[1] == "test_image":
         elif filter_name == "none":
             pass
         else:
-            print("filter not found")
+            print("Filter not found")
             quit()
-        print("processing face " + str(k))
+
         cv2.imwrite('face.png', resized_im)
         os.system("./cnn_c test face.png > results.txt")
         
@@ -85,9 +61,12 @@ elif sys.argv[1] == "test_image":
             unmasked += 1
         os.system("rm face.png")
         os.system("rm results.txt")
-        k += 1
+
     print("unmasked people : " + str(100 * unmasked / (unmasked + masked))[:5] + "%")
-    cv2.imwrite('out.png', im)
+    cv2.imshow("image", im)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()  
+    cv2.imwrite('out.png', im); print("Output image saved as out.png")
 
 elif sys.argv[1] == "make_data_set":
 
@@ -127,3 +106,5 @@ elif sys.argv[1] == "make_data_set":
     print("Labels : " + ' '.join(labels_list))
     print("Samples: " + str(len(labels)))
     img_data_to_csv(data, labels, labels_list, 'data.csv')
+
+else: print("No method selected check github README for correct use")
