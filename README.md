@@ -16,7 +16,7 @@ accuracy than the Deep Learning approach used.
 # CNN Architecture for mask detection
 
 <p align="center">
-	<img src="nn.png" width="80%" heigth="80%" alt="cnnarc"></img>
+	<img src="./assets/nn.png" width="80%" heigth="80%" alt="cnnarc"></img>
 </p>
 
 # How to use:
@@ -77,16 +77,16 @@ gcc (Clear Linux OS for Intel Architecture) 10.1.1 20200611 releases/gcc-10.1.0-
 Detected faces will be evaluated by the CNN, the boxes are drawn with OpenCV, for 80%+ probabilities, green for people with masks and red for unmasked.
 
 <p align="center">
-	<img src="das.jpg" width="70%" heigth="70%" alt="in_1"></img>
+	<img src="./assets/das.jpg" width="70%" heigth="70%" alt="in_1"></img>
 </p>
 <p align="center">
-	<img src="in_1.jpg" width="70%" heigth="70%" alt="in_2"></img>
+	<img src="./assets/in_1.jpg" width="70%" heigth="70%" alt="in_2"></img>
 </p>
 <p align="center">
-	<img src="in_2.jpg" width="70%" heigth="70%" alt="in_3"></img>
+	<img src="./assets/in_2.jpg" width="70%" heigth="70%" alt="in_3"></img>
 </p>
 <p align="center">
-	<img src="in_3.jpg" width="70%" heigth="70%" alt="in_4"></img>
+	<img src="./assets/in_3.jpg" width="70%" heigth="70%" alt="in_4"></img>
 </p>
 
 ## Viola Jones detection and histogram equalization
@@ -96,7 +96,7 @@ $ python3 data_set_enhancer.py test_image clahe vj das.jpg
 ```
 
 <p align="center">
-	<img src="clahe_vj.png" width="70%" heigth="70%" alt="out_1"></img>
+	<img src="./assets/clahe_vj.png" width="70%" heigth="70%" alt="out_1"></img>
 </p>
 
 ## Deep learning detection and no filter applied
@@ -105,14 +105,14 @@ $ python3 data_set_enhancer.py test_image clahe vj das.jpg
 $ python3 data_set_enhancer.py test_image none dnn das.jpg
 ```
 <p align="center">
-	<img src="none_dnn_1.png" width="70%" heigth="70%" alt="out_2"></img>
+	<img src="./assets/none_dnn_1.png" width="70%" heigth="70%" alt="out_2"></img>
 </p>
 
 <p align="center">
-	<img src="none_dnn_2.png" width="70%" heigth="70%" alt="out_3"></img>
+	<img src="./assets/none_dnn_2.png" width="70%" heigth="70%" alt="out_3"></img>
 </p>
 
 <p align="center">
-	<img src="none_dnn_3.png" width="70%" heigth="70%" alt="out_4"></img>
+	<img src="./assets/none_dnn_3.png" width="70%" heigth="70%" alt="out_4"></img>
 </p>
 
